@@ -86,6 +86,12 @@ describe("Gilded Rose - Sulfuras, Hand of Ragnaros item criteria", function () {
   it("Sulfuras, Hand of Ragnaros sellIn does not change", function () {
     expect(items[0].sellIn).to.equal(1);
   });
+
+  it("Sulfuras, Hand of Ragnaros quality can be higher than 50", function () {
+    let shop = new Shop([new Item("Sulfuras, Hand of Ragnaros", 1, 150)]);
+    let items = shop.updateQuality();
+    expect(items[0].quality).to.equal(150);
+  });
 });
 
 assertGeneralCriteria("Backstage passes to a TAFKAL80ETC concert", 10, 10);
