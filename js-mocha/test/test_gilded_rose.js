@@ -31,13 +31,7 @@ function assertGeneralCriteria(itemName, itemSellIn, itemQuality) {
     it("item quality can not exceed 50", function () {
       expect(items[0].quality).to.be.at.most(50);
     });
-  });
-}
 
-function assertSellInChanges(itemName, itemSellIn, itemQuality) {
-  describe(`Gilded Rose - all except legendary criteria (${itemName})`, function () {
-    let shop = new Shop([new Item(itemName, itemSellIn, itemQuality)]);
-    let items = shop.updateQuality();
     it("item should be sold a day sooner", function () {
       expect(items[0].sellIn).to.equal(itemSellIn - 1);
     });
@@ -45,9 +39,7 @@ function assertSellInChanges(itemName, itemSellIn, itemQuality) {
 }
 
 assertGeneralCriteria("+5 Dexterity Vest", 1, 1);
-assertSellInChanges("+5 Dexterity Vest", 1, 1);
 assertGeneralCriteria("+5 Dexterity Vest", 0, 0);
-assertSellInChanges("+5 Dexterity Vest", 0, 0);
 
 describe("Gilded Rose - generic item criteria (+5 Dexterity Vest)", function () {
   it("item should degrade before sellIn date", function () {
@@ -63,8 +55,8 @@ describe("Gilded Rose - generic item criteria (+5 Dexterity Vest)", function () 
 });
 
 assertGeneralCriteria("Aged Brie", 1, 50);
+assertGeneralCriteria("Aged Brie", -1, 50);
 assertGeneralCriteria("Aged Brie", 10, 10);
-assertSellInChanges("Aged Brie", 10, 10);
 
 describe("Gilded Rose - Aged Brie item criteria", function () {
   it("Aged Brie should increase in quality", function () {
@@ -72,19 +64,34 @@ describe("Gilded Rose - Aged Brie item criteria", function () {
     let items = shop.updateQuality();
     expect(items[0].quality).to.equal(2);
   });
-});
 
-assertGeneralCriteria("Sulfuras, Hand of Ragnaros", 0, 50);
+  it("Aged Brie should increase in quality, also after sellIn date", function () {
+    let shop = new Shop([new Item("Aged Brie", -1, 1)]);
+    let items = shop.updateQuality();
+    expect(items[0].quality).to.equal(2);
+  });
+});
 
 describe("Gilded Rose - Sulfuras, Hand of Ragnaros item criteria", function () {
   let shop = new Shop([new Item("Sulfuras, Hand of Ragnaros", 1, 1)]);
   let items = shop.updateQuality();
+
+  it("item name should not change", function () {
+    expect(items[0].name).to.equal("Sulfuras, Hand of Ragnaros");
+  });
+
   it("Sulfuras, Hand of Ragnaros quality does not change", function () {
     expect(items[0].quality).to.equal(1);
   });
 
   it("Sulfuras, Hand of Ragnaros sellIn does not change", function () {
     expect(items[0].sellIn).to.equal(1);
+  });
+
+  it("Sulfuras, Hand of Ragnaros does not degrade after sellin date", function () {
+    let shop = new Shop([new Item("Sulfuras, Hand of Ragnaros", -1, 50)]);
+    let items = shop.updateQuality();
+    expect(items[0].quality).to.equal(50);
   });
 
   it("Sulfuras, Hand of Ragnaros quality can be higher than 50", function () {
@@ -95,7 +102,6 @@ describe("Gilded Rose - Sulfuras, Hand of Ragnaros item criteria", function () {
 });
 
 assertGeneralCriteria("Backstage passes to a TAFKAL80ETC concert", 10, 10);
-assertSellInChanges("Backstage passes to a TAFKAL80ETC concert", 10, 10);
 
 describe("Gilded Rose - Backstage passes criteria", function () {
   it("Backstage pass quality increases by 2 when sellIn date between 10 and 3", function () {
@@ -125,8 +131,6 @@ describe("Gilded Rose - Backstage passes criteria", function () {
 
 assertGeneralCriteria("Conjured Mana Cake", 10, 10);
 assertGeneralCriteria("Conjured Mana Cake", 0, 0);
-assertSellInChanges("Conjured Mana Cake", 10, 10);
-assertSellInChanges("Conjured Mana Cake", 0, 0);
 
 describe("Gilded Rose - Conjured item criteria", function () {
   it("item should degrade by 2 before sellIn date", function () {
